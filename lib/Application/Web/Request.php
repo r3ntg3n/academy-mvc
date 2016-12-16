@@ -43,16 +43,21 @@ class Request
         $router = new Router();
         $controllerClass = $router->resolve()->getController();
         $controllerAction = $router->getAction();
+        $this->queryParams += $router->getRouteParams();
         
-        if (!class_exists($controllerClass)
-            || !method_exists($controllerClass, $controllerAction)
-        ) {
+        try {
+            $reflectionMethod = new \ReflectionMethod($controllerClass, $controllerAction);
+        } catch (\Exception $e) {
             header('Not Found', true, 404);
             exit;
         }
         
-        $controller = new $controllerClass();
-        call_user_func([$controller, $controllerAction]);
+        $actionParams = [];
+        foreach ($reflectionMethod->getParameters() as $param) {
+            $actionParams[$param->name] = $this->getParam($param->name);
+        }
+        
+        $reflectionMethod->invokeArgs(new $controllerClass(), $actionParams);
     }
     
     /**
@@ -69,5 +74,15 @@ class Request
         return isset($this->queryParams[$name])
             ? $this->queryParams[$name]
             : $default;
+    }
+    
+    /**
+     * Returns query params set.
+     *
+     * @return array
+     */
+    public function getQueryParams()
+    {
+        return $this->queryParams;
     }
 }

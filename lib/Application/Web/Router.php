@@ -23,6 +23,13 @@ class Router
     protected $route = [];
     
     /**
+     * Route parameters.
+     *
+     * @var array
+     */
+    protected $routeParams = [];
+    
+    /**
      * Resolved request route by parsing `route` GET query parameter.
      *
      * @return $this
@@ -38,9 +45,11 @@ class Router
         if ($route = App::$i->request->getParam('route')) {
             $parts = explode('/', $route);
             $resolvedPath = [
-                'controller' => $parts[0],
-                'action' => !empty($parts[1]) ? $parts[1] : null,
+                'controller' => array_shift($parts),
+                'action' => !empty($parts[0]) ? array_shift($parts) : null,
             ];
+            
+            $this->resolveParams($parts);
         }
         
         $this->route = $resolvedPath + $defaults;
@@ -55,6 +64,26 @@ class Router
         ];
         
         return $this;
+    }
+    
+    /**
+     * Resolves route parameters.
+     *
+     * @param array $params Parameters array
+     *
+     * @return void
+     */
+    public function resolveParams(array $params)
+    {
+        if (empty($params)) {
+            return;
+        }
+        
+        foreach ($params as $key => $value) {
+            if (!($key % 2)) {
+                $this->routeParams[$value] = $params[$key + 1];
+            }
+        }
     }
     
     /**
@@ -75,5 +104,15 @@ class Router
     public function getAction()
     {
         return $this->route['action'];
+    }
+    
+    /**
+     * Returns resolved route parameters if any found.
+     *
+     * @return array
+     */
+    public function getRouteParams()
+    {
+        return $this->routeParams;
     }
 }
