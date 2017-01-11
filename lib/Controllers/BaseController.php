@@ -18,6 +18,13 @@ class BaseController
     protected $layout = 'default/main';
     
     /**
+     * Rendered page title.
+     *
+     * @var string
+     */
+    public $pageTitle;
+    
+    /**
      * Render view file, surrounding it with layout.
      *
      * @param string $viewFile View file name to render.

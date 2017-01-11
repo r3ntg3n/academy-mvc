@@ -2,8 +2,6 @@
 
 namespace Academy\Models;
 
-use Academy\App;
-
 /**
  * Class BaseModel is a basic class for any model in application.
  *
@@ -18,53 +16,6 @@ class BaseModel
      * @var array
      */
     protected $attributes = [];
-    
-    /**
-     * Returns table name to work with.
-     *
-     * @return mixed
-     */
-    public static function tableName()
-    {
-    }
-    
-    /**
-     * Returns table's primary key column(s).
-     *
-     * @return mixed
-     */
-    public static function getPrimaryKey()
-    {
-    }
-    
-    /**
-     * Finds record by primary key.
-     *
-     * @param mixed $pkValue Primary key value.
-     *
-     * @return mixed
-     */
-    public function findByPk($pkValue)
-    {
-        $pkValue = (array) $pkValue;
-        $pk = (array) static::getPrimaryKey();
-        $tableName = static::tableName();
-        $query = "SELECT * FROM {$tableName} WHERE ";
-        foreach ($pk as $key => $param) {
-            $query .= "`{$param}` = :pk{$key} && ";
-        }
-        
-        $query = rtrim($query, '& ');
-        $statement = App::$i->db->prepare($query);
-        foreach ($pkValue as $key => $value) {
-            $statement->bindValue(":pk{$key}", $value);
-        }
-        
-        $statement->execute();
-        return $statement->rowCount()
-            ? $statement->fetchObject(static::class)
-            : null;
-    }
     
     /**
      * Magic getter for model's attributes.
@@ -91,5 +42,38 @@ class BaseModel
     public function __set($name, $value)
     {
         $this->attributes[$name] = $value;
+    }
+    
+    /**
+     * Tries to collect model's attributes' values from request data array.
+     *
+     * @param array $requestData Request data array.
+     *
+     * @return boolean
+     */
+    public function load(array $requestData)
+    {
+        $nsPos = strrpos(static::class, '\\') + 1;
+        $modelName = substr(static::class, $nsPos);
+        $modelName = strstr($modelName, 'Model', true);
+        
+        if (empty($requestData[$modelName])) {
+            return false;
+        }
+        
+        $this->setAttributes($requestData[$modelName]);
+        return true;
+    }
+    
+    /**
+     * Massive assignment of model's attributes' values.
+     *
+     * @param array $attributes Array of attributes to set.
+     *
+     * @return void
+     */
+    public function setAttributes(array $attributes)
+    {
+        $this->attributes = $attributes;
     }
 }

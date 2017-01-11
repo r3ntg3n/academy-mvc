@@ -1,12 +1,22 @@
+<?php
+
+use \Academy\App;
+use \Academy\Helpers\Url;
+
+$basePath = App::$i->request->getBasePath();
+$pageTitle = !empty($this->pageTitle)
+    ? $this->pageTitle
+    : App::$i->config->get('applicationName');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE-edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $this->pageTitle ?></title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/site.css">
+    <title><?= $pageTitle ?></title>
+    <link rel="stylesheet" href="<?= $basePath ?>/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= $basePath ?>/css/site.css">
 </head>
 <body>
     <nav class="navbar-default navbar-fixed-top">
@@ -24,7 +34,7 @@
                 </li>
             <?php if (!empty($user->id)) : ?>
                 <li>
-                    <a href="/profile.php">Your profile</a>
+                    <a href="<?= Url::to('user/profile') ?>">Your profile</a>
                 </li>
                 <?php if (!empty($user->superuser)): ?>
                 <li>
@@ -36,7 +46,7 @@
                 </li>
             <?php else: ?>
                 <li>
-                    <a href="/signup.php">Sign up</a>
+                    <a href="<?= Url::to('user/signup') ?>">Sign up</a>
                 </li>
             <?php endif; ?>
             </ul>

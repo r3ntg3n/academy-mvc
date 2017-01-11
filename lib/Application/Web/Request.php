@@ -25,12 +25,39 @@ class Request
     protected $postData = [];
     
     /**
+     * Base path to the application.
+     *
+     * @var string
+     */
+    protected $basePath;
+    
+    /**
+     * Current request method.
+     *
+     * @var string
+     */
+    protected $method;
+    
+    /**
      * Request constructor.
      */
     public function __construct()
     {
         $this->queryParams = $_GET;
         $this->postData = $_POST;
+        $this->method = $_SERVER['REQUEST_METHOD'];
+        $this->resolveBasePath();
+    }
+    
+    /**
+     * Resolves actual base path of the application.
+     *
+     * @return void
+     */
+    protected function resolveBasePath()
+    {
+        $basePath = pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME);
+        $this->basePath = rtrim($basePath, '/');
     }
     
     /**
@@ -84,5 +111,35 @@ class Request
     public function getQueryParams()
     {
         return $this->queryParams;
+    }
+    
+    /**
+     * Returns request's base path.
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
+    
+    /**
+     * Returns, whether current request is made via POST.
+     *
+     * @return boolean
+     */
+    public function isPost()
+    {
+        return $this->method == 'POST';
+    }
+    
+    /**
+     * Returns collected POST data.
+     *
+     * @return array
+     */
+    public function post()
+    {
+        return $this->postData;
     }
 }

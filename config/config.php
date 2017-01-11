@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'applicationName' => 'PHP-Academy - Learning MVC',
     'database' => [
         'host' => 'localhost',
         'dbname' => 'academy',

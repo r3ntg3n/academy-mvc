@@ -43,6 +43,7 @@ class Router
     
         $resolvedPath = [];
         if ($route = App::$i->request->getParam('route')) {
+            $route = trim($route, '/');
             $parts = explode('/', $route);
             $resolvedPath = [
                 'controller' => array_shift($parts),

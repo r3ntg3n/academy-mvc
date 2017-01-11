@@ -2,6 +2,8 @@
 
 namespace Academy\Controllers;
 
+use Academy\App;
+use Academy\Models\SignupFormModel;
 use Academy\Models\UserModel;
 
 /**
@@ -38,5 +40,21 @@ class UserController extends BaseController
         }
         
         $this->render('view', ['model' => $model]);
+    }
+    
+    /**
+     * Renders sign up form.
+     *
+     * @return void
+     */
+    public function actionSignup()
+    {
+        $model = new SignupFormModel();
+        if ($model->load(App::$i->request->post())) {
+            var_dump($model);
+            exit;
+        }
+        
+        $this->render('signup', ['model' => $model]);
     }
 }

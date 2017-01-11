@@ -2,12 +2,14 @@
 
 namespace Academy\Models;
 
+use Academy\ActiveRecord\BaseActiveRecord;
+
 /**
  * Class UserModel is a model class for `user` table.
  *
  * @package Academy\Models
  */
-class UserModel extends BaseModel
+class UserModel extends BaseActiveRecord
 {
     
     /**
