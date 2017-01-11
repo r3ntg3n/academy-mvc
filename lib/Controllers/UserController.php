@@ -3,6 +3,7 @@
 namespace Academy\Controllers;
 
 use Academy\App;
+use Academy\Application\Web\Exceptions\HttpForbiddenException;
 use Academy\Models\SignupFormModel;
 use Academy\Models\UserModel;
 
@@ -13,6 +14,16 @@ use Academy\Models\UserModel;
  */
 class UserController extends BaseController
 {
+    
+    public function middleware()
+    {
+        $guestAllowedActions = ['index', 'signup'];
+        if (!in_array($this->actionId, $guestAllowedActions)
+            && App::$i->user->isGuest()
+        ) {
+            throw new HttpForbiddenException();
+        }
+    }
     
     /**
      * Renders a list of user on the page.
@@ -30,6 +41,8 @@ class UserController extends BaseController
      * @param integer $id User record ID.
      *
      * @return void
+     *
+     * @throws HttpForbiddenException In case if current user is a guest user.
      */
     public function actionView($id)
     {
@@ -40,6 +53,15 @@ class UserController extends BaseController
         }
         
         $this->render('view', ['model' => $model]);
+    }
+    
+    public function actionEdit($id)
+    {
+        if (App::$i->user->isAdmin()) {
+            App::$i->response->setStatus(403);
+            App::$i->response->setBody('Not allowed!');
+            App::$i->response->send();
+        }
     }
     
     /**

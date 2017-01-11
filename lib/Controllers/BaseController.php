@@ -2,6 +2,8 @@
 
 namespace Academy\Controllers;
 
+use Academy\App;
+
 /**
  * Class BaseController is a basic controller class of application/
  *
@@ -25,6 +27,17 @@ class BaseController
     public $pageTitle;
     
     /**
+     * Current invoked controller's actions name.
+     *
+     * @var string
+     */
+    public $actionId;
+    
+    public function middleware()
+    {
+    }
+    
+    /**
      * Render view file, surrounding it with layout.
      *
      * @param string $viewFile View file name to render.
@@ -43,7 +56,8 @@ class BaseController
         require ROOT_PATH . "/layouts/{$this->layout}.php";
         $result = ob_get_contents();
         ob_clean();
-        echo $result;
+        
+        App::$i->response->setBody($result);
     }
     
     /**

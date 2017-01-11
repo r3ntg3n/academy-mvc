@@ -37,6 +37,20 @@ class App
      * @var Application\Web\Request
      */
     public $request;
+    
+    /**
+     * Current user instance.
+     *
+     * @var Application\Web\User;
+     */
+    public $user;
+    
+    /**
+     * Application's response object.
+     *
+     * @var Application\Web\Response
+     */
+    public $response;
 
     /**
      * Instantiated application.
@@ -77,6 +91,8 @@ class App
             'config' => $config,
             'db' => $db,
             'request' => new Application\Web\Request(),
+            'user' => new Application\Web\User(),
+            'response' => new Application\Web\Response(),
         ];
     }
     

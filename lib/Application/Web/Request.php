@@ -2,6 +2,10 @@
 
 namespace Academy\Application\Web;
 
+use Academy\App;
+use Academy\Application\Web\Exceptions\BaseHttpException;
+use Academy\Controllers\BaseController;
+
 /**
  * Class Request is responsible for HTTP request handling.
  *
@@ -75,16 +79,40 @@ class Request
         try {
             $reflectionMethod = new \ReflectionMethod($controllerClass, $controllerAction);
         } catch (\Exception $e) {
-            header('Not Found', true, 404);
-            exit;
+            App::$i->response->setStatus(404);
+            App::$i->response->send();
         }
+        
+        ///////
         
         $actionParams = [];
         foreach ($reflectionMethod->getParameters() as $param) {
             $actionParams[$param->name] = $this->getParam($param->name);
         }
         
-        $reflectionMethod->invokeArgs(new $controllerClass(), $actionParams);
+        /* @var $controllerInstance BaseController */
+        $controllerInstance = new $controllerClass();
+        $controllerAction = str_replace('action', '', $controllerAction);
+        $controllerInstance->actionId = strtolower($controllerAction);
+        
+        try {
+            $controllerInstance->middleware();
+            $reflectionMethod->invokeArgs($controllerInstance, $actionParams);
+        } catch (\Exception $e) {
+            $status = ($e instanceof BaseHttpException) ? $e->getCode() : 500;
+            App::$i->response->setStatus($status);
+        }
+        
+        App::$i->response->send();
+    }
+    
+    protected function runMiddleware(array $middleware)
+    {
+        if (empty($middleware)) {
+            return;
+        }
+        $user = App::$i->user;
+        
     }
     
     /**
