@@ -27,14 +27,34 @@ class BaseController
     public $pageTitle;
     
     /**
+     * Controller's ID resolved from route.
+     *
+     * @var string
+     */
+    public $id;
+    
+    /**
      * Current invoked controller's actions name.
      *
      * @var string
      */
     public $actionId;
     
+    /**
+     * Default controller's action.
+     *
+     * @var string
+     */
+    public $defaultAction = 'index';
+    
+    /**
+     * Returns assigned middleware for controller.
+     *
+     * @return array
+     */
     public function middleware()
     {
+        return [];
     }
     
     /**
@@ -66,7 +86,7 @@ class BaseController
      * @param string $view   View file name to render.
      * @param array  $params View rendering parameters.
      *
-     * @return mixed
+     * @return void
      */
     public function renderPartial($view, array $params = [])
     {
@@ -100,5 +120,22 @@ class BaseController
         ]);
         
         return $viewFilepath;
+    }
+    
+    /**
+     * Redirects user to the route.
+     *
+     * @param string $route Route to redirect user to.
+     *
+     * @return void
+     */
+    public function redirect($route)
+    {
+        $route = trim($route, '/');
+        if (strpos($route, '/') === false) {
+            $route = "{$this->id}/{$route}";
+        }
+        
+        App::$i->response->redirect($route);
     }
 }

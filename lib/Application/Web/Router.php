@@ -38,7 +38,6 @@ class Router
     {
         $defaults = [
             'controller' => App::$i->config->get('defaultController'),
-            'action' => 'index'
         ];
     
         $resolvedPath = [];
@@ -46,23 +45,16 @@ class Router
             $route = trim($route, '/');
             $parts = explode('/', $route);
             $resolvedPath = [
-                'controller' => array_shift($parts),
-                'action' => !empty($parts[0]) ? array_shift($parts) : null,
+                'controller' => strtolower(array_shift($parts)),
+                'action' => !empty($parts[0])
+                    ? strtolower(array_shift($parts))
+                    : null,
             ];
             
             $this->resolveParams($parts);
         }
         
         $this->route = $resolvedPath + $defaults;
-        
-        $controllerClass = ucfirst($this->route['controller']) . 'Controller';
-        $controllerClass = "\\Academy\\Controllers\\{$controllerClass}";
-        $controllerAction = 'action' . ucfirst($this->route['action']);
-        
-        $this->route = [
-            'controller' => $controllerClass,
-            'action' => $controllerAction,
-        ];
         
         return $this;
     }
@@ -100,11 +92,13 @@ class Router
     /**
      * Returns resolved controller's action method.
      *
-     * @return string
+     * @return mixed
      */
     public function getAction()
     {
-        return $this->route['action'];
+        return !empty($this->route['action'])
+            ? $this->route['action']
+            : null;
     }
     
     /**

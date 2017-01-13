@@ -2,6 +2,8 @@
 
 namespace Academy\Application\Web;
 
+use Academy\Helpers\Url;
+
 /**
  * Class Response
  *
@@ -43,6 +45,13 @@ class Response
     private $body;
     
     /**
+     * A list of headers to be send within response.
+     *
+     * @var array
+     */
+    private $headers = [];
+    
+    /**
      * Sets request response code status.
      *
      * @param integer $status HTTP response status code
@@ -67,15 +76,55 @@ class Response
     }
     
     /**
+     * Adds header definition into response.
+     *
+     * @param string $header Header definition.
+     *
+     * @return void
+     */
+    public function addHeader($header)
+    {
+        $this->headers[] = $header;
+    }
+    
+    /**
      * Sends response content to client.
      *
      * @return void
      */
     public function send()
     {
-        $statusMessage = $this->statusMessageMap[$this->status];
-        header("HTTP/1.1 {$this->status} {$statusMessage}");
+        $this->sendHeaders();
         echo $this->body;
         exit;
+    }
+    
+    /**
+     * Sends response headers to the browser.
+     *
+     * @return void
+     */
+    protected function sendHeaders()
+    {
+        $statusMessage = $this->statusMessageMap[$this->status];
+        header("HTTP/1.1 {$this->status} {$statusMessage}");
+        
+        foreach ($this->headers as $header) {
+            header($header, true);
+        }
+    }
+    
+    /**
+     * Redirects user to the route.
+     *
+     * @param string $route Route to redirect user to.
+     *
+     * @return void
+     */
+    public function redirect($route)
+    {
+        $location = Url::to($route);
+        $this->headers = ["Location: {$location}"];
+        $this->send();
     }
 }

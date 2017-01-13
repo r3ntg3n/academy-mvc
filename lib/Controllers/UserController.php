@@ -4,6 +4,8 @@ namespace Academy\Controllers;
 
 use Academy\App;
 use Academy\Application\Web\Exceptions\HttpForbiddenException;
+use Academy\Application\Web\Middleware\AccessControl;
+use Academy\Models\SigninFormModel;
 use Academy\Models\SignupFormModel;
 use Academy\Models\UserModel;
 
@@ -15,14 +17,34 @@ use Academy\Models\UserModel;
 class UserController extends BaseController
 {
     
+    /**
+     * {@inheritdoc}
+     *
+     * @return array
+     */
     public function middleware()
     {
-        $guestAllowedActions = ['index', 'signup'];
-        if (!in_array($this->actionId, $guestAllowedActions)
-            && App::$i->user->isGuest()
-        ) {
-            throw new HttpForbiddenException();
-        }
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    'allow' => [
+                        [
+                            'actions' => ['index', 'view'],
+                            'roles' => ['@']
+                        ],
+                        [
+                            'actions' => ['edit'],
+                            'users' => ['admin'],
+                        ],
+                        [
+                            'actions' => ['signup'],
+                            'roles' => ['*'],
+                        ]
+                    ],
+                ],
+            ],
+        ];
     }
     
     /**
@@ -32,7 +54,7 @@ class UserController extends BaseController
      */
     public function actionIndex()
     {
-        echo 'Hello, users!';
+        $this->render('index');
     }
     
     /**
@@ -55,6 +77,13 @@ class UserController extends BaseController
         $this->render('view', ['model' => $model]);
     }
     
+    /**
+     * User edit page.
+     *
+     * @param integer $id User id.
+     *
+     * @return void
+     */
     public function actionEdit($id)
     {
         if (App::$i->user->isAdmin()) {
@@ -78,5 +107,22 @@ class UserController extends BaseController
         }
         
         $this->render('signup', ['model' => $model]);
+    }
+    
+    /**
+     * Renders sign in form.
+     *
+     * @return void
+     */
+    public function actionSignin()
+    {
+        $model = new SigninFormModel();
+        if ($model->load(App::$i->request->post())
+            && $model->authenticate()
+        ) {
+            $this->redirect('index');
+        }
+    
+        $this->render('signin', ['model' => $model]);
     }
 }

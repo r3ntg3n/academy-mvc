@@ -9,4 +9,5 @@ return [
         'password' => 'acad3my',
     ],
     'defaultController' => 'site',
+    'loginUrl' => '/user/signin',
 ];

@@ -2,12 +2,14 @@
 
 namespace Academy\Controllers;
 
+use Academy\App;
+
 /**
  * Class SiteController is a default controller for application.
  *
  * @package Academy\Controllers
  */
-class SiteController
+class SiteController extends BaseController
 {
     
     /**
@@ -17,6 +19,6 @@ class SiteController
      */
     public function actionIndex()
     {
-        echo 'index';
+        App::$i->response->setBody('index');
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Academy\Helpers;
 
+use Academy\App;
+
 /**
  * Class Url is a helper, which is responsible for URL transformation.
  *
@@ -20,7 +22,7 @@ class Url
     public static function to($route)
     {
         $route = trim($route, '/');
-        $basePath = \Academy\App::$i->request->getBasePath();
+        $basePath = App::$i->request->getBasePath();
         
         return "{$basePath}/{$route}";
     }
